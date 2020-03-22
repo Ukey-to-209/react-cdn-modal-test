@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React CDN TEST</title>
+    <title>Modal Bootstrap TEST</title>
     <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.26.0/babel.js"></script>
@@ -11,15 +11,8 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style type="text/css">
-        label {
-            margin-bottom: 0.2rem;
-        };
-        .form-group {
-            margin-bottom: 0.5rem;
-        };
-        #modal-thumbnail {
-            max-width: 500px;
-        };
+        label { margin-bottom: 0.2rem; };
+        .form-group { margin-bottom: 0.5rem; };
     </style>
 </head>
 <body>
@@ -28,17 +21,21 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <!-- memo https://qiita.com/sensuikan1973/items/74cf5383c02dbcd82234 -->
-    <h1>React CDN TEST</h1>
+    <h3>Modal Bootstrap TEST</h3>
     <div id="root">wait...</div>
     <div id="root-modal">aaaa</div>
 
     <script>
-        function showModal() {$('#modal1').modal('show');}
+        function showModal() {
+            $('#modal1').modal('show');
+        }
+
+        function requestAjax(url){
+            console.log("URL:" + url);
+        }
 
         /// グローバル.
-        let cardModel = [
-            {title: "titleだよ", body: "ボディだよ"},
-        ];
+        let cardModel = [{title: "titleだよ", body: "ボディだよ"},];
     </script>
 
     <script>
@@ -51,8 +48,7 @@
                     React.createElement('a', {className: "btn col-2 btn-danger  m-2"}, "test"),
                 ]
             )
-        ),
-        document.querySelector('#root') );
+        ), document.querySelector('#root') );
     </script>
 
 
@@ -61,8 +57,8 @@
     class ModalHeader extends React.Component {
         render(){
             return (
-                <div class="modal-header text-center">
-                    <h5 class="modal-title w-100" id="label1">カードデータの修正</h5>
+                <div class="modal-header text-center p-2">
+                    <h5 class="modal-title w-100 mt-1" id="label1">カードデータの修正</h5>
                     <a type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </a>
@@ -70,6 +66,33 @@
             );
         }
     }
+
+    /**
+     * モーダル上で簡単な入力を表示.
+     */
+    class ModalCommonInput extends React.Component {
+        inputId    = "";
+        inputLabel = "";
+        inputType  = "";
+        prevData   = "";
+        constructor (props) {
+            super(props);
+            this.inputId    = props.id;
+            this.inputLabel = props.label;
+            this.inputType  = props.type;
+            this.prevData   = props.data;
+        }
+        render(){
+            return (
+                <div class="form-group">
+                    <label for={this.inputId}>{this.inputLabel}</label>
+                    <input type={this.inputType} class="form-control" id={this.inputId} placeholder={this.prevData} />
+                </div>
+            );
+        }
+    }
+
+        // <img class="img-thumbnail" src="https://www.pakutaso.com/shared/img/thumb/kumakichi2020A1946_TP_V.jpg" />
     class ModalBody extends React.Component {
         cardData   = null;
         labelStyle = {};
@@ -78,19 +101,13 @@
             this.cardData = props.cardData;
             this.labelStyle = {marginbottom: "0.1rem",};
         }
+        // <img class="img-thumbnail" src="https://www.pakutaso.com/shared/img/thumb/kumakichi2020A1946_TP_V.jpg" />
         render(){
             return (
                 <div class="modal-body">
                     <form>
-                        <div class="form-group">
-                            <label for="formControlInput1" >タイトル</label>
-                            <input type="text" class="form-control" id="formControlInput1" placeholder={this.cardData.title} />
-                        </div>
-                        <div class="form-group">
-                            <label for="formControlInput2" >画像URL</label>
-                            <input type="url" class="form-control" id="formControlInput2" placeholder={this.cardData.title} />
-                            <img class="img-thumbnail" src="https://www.pakutaso.com/shared/img/thumb/kumakichi2020A1946_TP_V.jpg" />
-                        </div>
+                        <ModalCommonInput id="formControlInput1" label="タイトル" type="text" data={this.cardData.title} />
+                        <ModalCommonInput id="formControlInput2" label="画像URL" type="url"  data={this.cardData.body} />
                         <div class="form-group">
                             <label for="formControlInput3" >期間</label>
                             <div class="form-inline">
@@ -103,6 +120,45 @@
                             <textarea class="form-control" id="formControlTextarea1" rows="3"></textarea>
                         </div>
                     </form>
+                </div>
+            );
+        }
+    }
+
+    class ModalFooter extends React.Component {
+        cardIndex = "";
+        cardData  = "";
+        constructor(props) {
+            super(props);
+            this.cardData  = props.cardData;
+            this.cardIndex = props.cardIndex;
+        }
+        onOKClick = () => {
+            if ( confirm("内容を実行します.") ){
+                console.log("Yes");
+                // モーダルを閉じる.
+                $('#modal1').modal('hide');
+
+                // ここでデータを取るのが良いのか？
+                console.log($("#formControlInput1").val());
+                console.log($("#formControlInput2").val());
+                console.log($("#formControlInput3").val());
+                console.log($("#formControlInput4").val());
+                console.log($("#formControlTextarea1").val());
+
+                // POST用のデータを作成.
+
+                // データを更新する.
+                requestAjax("aaaaaaaaa");
+            } else {
+                console.log("No");
+            }
+        }
+        render(){
+            return (
+                <div class="modal-footer p-2">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onClick={this.onOKClick}>更新</button>
                 </div>
             );
         }
@@ -122,11 +178,8 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <ModalHeader />
-                            <ModalBody cardData={this.cardData} />
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">OK</button>
-                            </div>
+                            <ModalBody   cardData={this.cardData} />
+                            <ModalFooter cardData={this.cardData} cardIndex={this.cardIndex} />
                         </div>
                     </div>
                 </div>
@@ -144,7 +197,8 @@
 
     // ここの位置をどうするか。
     $('#modal1').on('hide.bs.modal', function () {
-                alert('モーダルを閉じていいですか？');
+        // alert('モーダルを閉じます？');
+        console.log("Modal 閉じるのを開始.");
     });
     </script>
 </body>
