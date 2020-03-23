@@ -26,31 +26,16 @@
     <div id="root-modal">aaaa</div>
 
     <script>
-        function showModal() {
-            $('#modal1').modal('show');
-        }
-
         function requestAjax(url){
             console.log("URL:" + url);
         }
 
         /// グローバル.
-        let cardModel = [{title: "titleだよ", body: "ボディだよ"},];
+        let cardModel = [
+            {title: "titleだよ", body: "ボディだよ"},
+            {title: "titleでぃ", body: "ボディでぃ"},
+        ];
     </script>
-
-    <script>
-        /// ボタンの描画.
-        ReactDOM.render( React.createElement(
-            'div', {className: "container bg-dark"}, React.createElement(
-                'div', {className: "row justify-content-between"}, [
-                    React.createElement('a', {className: "btn col-2 btn-danger  m-2", onClick: showModal},"modal"),
-                    React.createElement('a', {className: "btn col-2 btn-danger  m-2"}, "test"),
-                    React.createElement('a', {className: "btn col-2 btn-danger  m-2"}, "test"),
-                ]
-            )
-        ), document.querySelector('#root') );
-    </script>
-
 
 
     <script type="text/babel">
@@ -71,22 +56,21 @@
      * モーダル上で簡単な入力を表示.
      */
     class ModalCommonInput extends React.Component {
-        inputId    = "";
-        inputLabel = "";
-        inputType  = "";
-        prevData   = "";
         constructor (props) {
             super(props);
-            this.inputId    = props.id;
-            this.inputLabel = props.label;
-            this.inputType  = props.type;
-            this.prevData   = props.data;
+            this.state = {
+                key:   props.key,
+                id:    props.id,
+                label: props.label,
+                type:  props.type,
+                data:  props.data,
+            };
         }
         render(){
             return (
                 <div class="form-group">
-                    <label for={this.inputId}>{this.inputLabel}</label>
-                    <input type={this.inputType} class="form-control" id={this.inputId} placeholder={this.prevData} />
+                    <label for={this.state["id"]}>{this.state["label"]}</label>
+                    <input key={this.state.key} type={this.state["type"]} class="form-control" id={this.state["id"]} placeholder={this.state["data"]} />
                 </div>
             );
         }
@@ -94,20 +78,21 @@
 
         // <img class="img-thumbnail" src="https://www.pakutaso.com/shared/img/thumb/kumakichi2020A1946_TP_V.jpg" />
     class ModalBody extends React.Component {
-        cardData   = null;
-        labelStyle = {};
         constructor (props) {
             super(props);
-            this.cardData = props.cardData;
-            this.labelStyle = {marginbottom: "0.1rem",};
+            this.state = {
+                card: props.cardData,
+                key: props.key,
+                labelStyle: {marginbottom: "0.1rem",},
+            };
         }
         // <img class="img-thumbnail" src="https://www.pakutaso.com/shared/img/thumb/kumakichi2020A1946_TP_V.jpg" />
         render(){
             return (
-                <div class="modal-body">
+                <div key={this.state.id} id={"modalBody"+this.state.id} class="modal-body">
                     <form>
-                        <ModalCommonInput id="formControlInput1" label="タイトル" type="text" data={this.cardData.title} />
-                        <ModalCommonInput id="formControlInput2" label="画像URL" type="url"  data={this.cardData.body} />
+                        <ModalCommonInput key={this.state["key"]} id="formControlInput1" label="タイトル" type="text" data={this.state["card"].title} />
+                        <ModalCommonInput key={this.state["key"]} id="formControlInput2" label="画像URL" type="url"  data={this.state["card"].body} />
                         <div class="form-group">
                             <label for="formControlInput3" >期間</label>
                             <div class="form-inline">
@@ -165,41 +150,69 @@
     }
 
     class CreateModal extends React.Component {
-        cardIndex = "";
-        cardData  = "";
         constructor(props) {
             super(props);
-            this.cardData  = props.cardData;
-            this.cardIndex = props.cardIndex;
+            this.state = {
+                key:  props.key,
+                card: props.cardData,
+                id: props.cardIndex,
+            };
         }
         render(){
             return (
-                <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="label1" aria-hidden="true">
+                <div key={this.state.id} class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="label1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <ModalHeader />
-                            <ModalBody   cardData={this.cardData} />
-                            <ModalFooter cardData={this.cardData} cardIndex={this.cardIndex} />
+                            <ModalBody   key={this.state["key"]} cardData={this.state["card"]} />
+                            <ModalFooter cardData={this.cardData} cardIndex={this.state["id"]} />
                         </div>
                     </div>
                 </div>
             );
         }
     }
+    function showModal() {
+        let le = (
+            <div class="container bg-light">
+                <CreateModal key={"0000"} cardData={cardModel[0]} cardIndex={0}/>
+            </div>
+        );
+        let domModal  = document.querySelector('#root-modal');
+        ReactDOM.render(le, domModal);
+        setTimeout( show, 100);
+    }
+    function showModal2() {
+        let le = (
+            <div class="container bg-light">
+                <CreateModal key={"1111"} cardData={cardModel[1]} cardIndex={1}/>
+            </div>
+        );
+        let domModal  = document.querySelector('#root-modal');
+        ReactDOM.render(le, domModal);
+        setTimeout( show, 100);
+    }
+    function show(){
+        $('#modal1').modal('show');
+    }
 
-    let le = (
-        <div class="container bg-light">
-            <CreateModal cardData={cardModel[0]} cardIndex={0}/>
-        </div>
-    );
-    let domModal  = document.querySelector('#root-modal');
-    ReactDOM.render(le, domModal);
 
     // ここの位置をどうするか。
-    $('#modal1').on('hide.bs.modal', function () {
+    $('#modal1').on('hidden.bs.modal', function () {
         // alert('モーダルを閉じます？');
         console.log("Modal 閉じるのを開始.");
     });
+    /// ボタンの描画.
+    ReactDOM.render( React.createElement(
+        'div', {className: "container bg-dark"}, React.createElement(
+            'div', {className: "row justify-content-between"}, [
+                React.createElement('a', {className: "btn col-2 btn-danger  m-2", onClick: showModal}, "modal1"),
+                React.createElement('a', {className: "btn col-2 btn-danger  m-2", onClick: showModal2},"modal2"),
+                React.createElement('a', {className: "btn col-2 btn-danger  m-2"}, "test"),
+            ]
+        )
+    ), document.querySelector('#root') );
     </script>
+
 </body>
 </html>
